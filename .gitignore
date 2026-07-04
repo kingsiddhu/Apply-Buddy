@@ -1,5 +1,7 @@
 *.pdf
-Data/*
+
+Data/*.tex
+Data/*.md
 .venv_win
 .vscode
 

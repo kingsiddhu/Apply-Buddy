@@ -66,7 +66,7 @@ def print_list(lis:list, level=1):
     print("    "*(level-1) + "]")
 
 def dumplog(state):
-    if not DebugMode:
+    if DebugMode:
         return
     with open("memory.log", "w") as f:
         f.write(json.dumps(state, indent=2))

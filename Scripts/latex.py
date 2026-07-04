@@ -1,6 +1,8 @@
 import requests
-import Scripts.debug
-
+if __name__!="__main__":
+    import Scripts.debug
+else:
+    import debug
 def get_working_server(servers, timeout=5):
     """
     Try each server in order and return the first one that responds
@@ -33,7 +35,7 @@ def get_working_server(servers, timeout=5):
 
     return None
 
-def compile_latex_to_pdf(server_url, data, output_path, endpoint="/builds/sync", timeout=120):
+def compile_latex_to_pdf(server_url:str, data: str, output_path:str, endpoint="/builds/sync", timeout=120):
     """
     POST a LaTeX build request to a working server and save the returned
     PDF to disk.
@@ -65,6 +67,7 @@ def compile_latex_to_pdf(server_url, data, output_path, endpoint="/builds/sync",
         )
     except requests.exceptions.RequestException as e:
         print(f"[error] request to {url} failed: {e}")
+        Scripts.debug.dumplog(f"[error] request to {url} failed: {e}")
         return None
 
     content_type = response.headers.get("Content-Type", "")
@@ -78,5 +81,90 @@ def compile_latex_to_pdf(server_url, data, output_path, endpoint="/builds/sync",
 
     # Compilation errors from LaTeX-on-HTTP comes back not as a PDF. (prob json)
     print(f"[error] build failed (status {response.status_code}): {str(response.text).replace("\\n", "\n")}")
+    Scripts.debug.dumplog(f"[error] build failed (status {response.status_code}):")
+    Scripts.debug.dumplog(Scripts.parsejson.parse_response(response.text))
     return None
 
+def get_placeholders_tex(data: str) -> list[str]:
+    """
+    Find all the variables set in the base template to work with
+
+    :param data: String data of the .tex file to search for 
+    """
+    vars = []
+    start_found = False
+    start = 0
+    for i in range(len(data)):
+        if data[i]=="[" and data[i-1]=="[":
+            start = i+1
+            start_found=True
+            continue
+        if data[i]=="]" and data[i+1]=="]":
+            if data[start:i] not in vars:
+                vars.append(data[start:i])
+            start_found = False
+            continue
+    return vars
+
+def get_vars_data_md(md: str) -> dict[str, list[str]]:
+    """
+    Get all the placeholder text from the MD Placeholder data (needs to be read)
+    :param md: The string data of the MD file to extract keys and values, e.g.
+    ```
+#HEADING1 
+ - point1
+ - point 2 
+#Heading 3
+ - p oint1
+ - potn2
+ ```
+    :return: A dictionary of extracted data, would look like so based on the example data 
+    ```
+{
+ "HEADING1" : ["point1", "point 2"],
+ "Heading 3" : ["p oint1", "potn2"]
+}
+    ```
+    :return: output_path on success, None on failure
+    """
+    result = {}
+    current_heading = None
+
+    for line in md.splitlines():
+        line = line.strip()
+
+        if not line:
+            continue
+
+        # Heading
+        if line.startswith("#"):
+            current_heading = line.lstrip("#").strip()
+            result[current_heading] = []
+
+        # Bullet point
+        elif line.startswith("-") and current_heading is not None:
+            result[current_heading].append(line[1:].strip())
+        else:
+            result[current_heading][len(result[current_heading])-1]+="\n"+line
+
+    return result
+
+if __name__=="__main__":
+    data="""Lorem Epsom thingy??
+    
+    idk ts is only for testing
+    [[HELLO_TESTING_HEHHEHE]]
+    I would make a haiku but im lazy rn
+    [[Another one??]]
+    """
+    print(get_placeholders_tex(data))
+    
+    data_2 = """#HEADING1 
+ - point1
+ - point 2 
+#Heading 3
+ - p oint1
+ tset?
+ - potn2
+"""
+    print(get_vars_data_md(data_2))

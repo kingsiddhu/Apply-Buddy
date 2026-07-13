@@ -1,5 +1,3 @@
-from langgraph.graph import StateGraph, END
-from langchain_ollama import OllamaLLM
 from typing import TypedDict
 import Scripts
 import asyncio
@@ -39,29 +37,18 @@ format = []
 
 for i in os.listdir("Data"):
     ix = i.split(".")
-    print(i)
     if ix[-1]=="tex":
+        print(i)
         templates.append(".".join(ix[0:-2]))
         format.append(ix[-2]+"latex")
 
 
 
-ch = 0
+ch = int(input(">>> "))-1
 
 #AI INIT
 
-mainLLM = OllamaLLM(model="qwen2.5:7b")
 #INIT END
-
-
-async def getResp(messages, model):
-    result = ""
-    async for chunk in model.astream(messages):
-        print(chunk, end="", flush=True)
-        result += chunk
-    print()
-    return result
-
 
 
 #TUI 
@@ -70,26 +57,9 @@ with open(f"Data/{templates[ch]}.{format[ch][0:-5]}.tex") as f:
     base = f.read()
 
 #Find the placeholders
-url = input("Enter Link to posting: ")
-html_data = Scripts.scraper.get_html(url)
-Scripts.debug.dumplog(html_data)
-for i in os.listdir("Settings/"):
-    if i.split(".")[0] in url:
-        with open("Settings/"+i.split(".")[0]+".json") as f:
-            print("Settings/"+i.split(".")[0]+".json", f.read())
-            scraper_data = Scripts.parsejson.parse_response(f.read())
-        break
 
 place_holders = Scripts.latex.get_placeholders_tex(base)
 replacing_data = {i:None for i in place_holders}
-
-if "tag" in scraper_data:
-    replacing_data["description"] = Scripts.scraper.scrape_by_aria_label(html_data, scraper_data["tag"][1], scraper_data["tag"][0])[0]
-else:
-    for i in scraper_data:
-        if i[0].isupper():
-            replacing_data[i] = Scripts.scraper.scrape_by_class(html_data, scraper_data[i])[0]
-
 
 #MD Data
 
@@ -97,33 +67,9 @@ with open(f"Data/{templates[ch]}.md") as f:
     md = Scripts.latex.get_vars_data_md(f.read())
 print(Scripts.debug.json.dumps(md, indent=4))
 
-#BRING THE AIIIIII
-
-#Gen of AI prompt
-desc = f"Description: {Scripts.scraper.scrape_by_class(html_data, scraper_data["description"])[0]}\n\
-Data To fill:\n"+ Scripts.json.dumps({i:"" for i in replacing_data if replacing_data[i] is None},indent=4)
-print(desc)
-system_prompt = Scripts.SYSTEM_PROMPTS.INIT_PROMPT + ", ".join(md.keys()) + " " +Scripts.SYSTEM_PROMPTS.FORMAT  
-print(system_prompt)
-
-messages = [
-    ("system", system_prompt),
-    ("user", desc)
-]
-
-
-response = asyncio.run(getResp(messages, mainLLM))
-
-data_from_ai = Scripts.parsejson.parse_response(response)
-
-for i in data_from_ai:
-    replacing_data[i] = data_from_ai[i]
-    if i[0].islower():
-        replacing_data[i] = random.choice(md[data_from_ai[i]])
-
 
 print(replacing_data)
-print(scraper_data)
+
 #getting data from user. will replace with AI someday fs. prob not tho
 for i in place_holders:
     if replacing_data[i] is None:

@@ -111,10 +111,10 @@ def get_vars_data_md(md: str) -> dict[str, list[str]]:
     Get all the placeholder text from the MD Placeholder data (needs to be read)
     :param md: The string data of the MD file to extract keys and values, e.g.
     ```
-#HEADING1 
+# HEADING1 
  - point1
  - point 2 
-#Heading 3
+# Heading 3
  - p oint1
  - potn2
  ```
@@ -159,12 +159,17 @@ if __name__=="__main__":
     """
     print(get_placeholders_tex(data))
     
-    data_2 = """#HEADING1 
+    data_2 = """# HEADING1 
  - point1
  - point 2 
 #Heading 3
  - p oint1
- tset?
- - potn2
+tset?
 """
     print(get_vars_data_md(data_2))
+
+    
+    with open("Data/CL.md") as f:
+        data_2 = f.read()
+    import json
+    print(json.dumps(get_vars_data_md(data_2), indent=4))

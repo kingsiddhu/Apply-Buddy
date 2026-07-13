@@ -1,9 +1,10 @@
 *.pdf
 
 Data/*
+Settings/*
 .venv_win
 .vscode
-
+auth.json
 
 
 # Byte-compiled / optimized / DLL files

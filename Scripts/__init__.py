@@ -1,4 +1,4 @@
-from . import debug, parsejson, latex
+from . import debug, parsejson, latex, scraper
 from .SYSTEM_PROMPTS import *
 
 import sys

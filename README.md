@@ -3,11 +3,9 @@
 ![Status](https://img.shields.io/badge/Status-Experimental-orange.svg?style=for-the-badge&labelColor=101418&color=F3C27C)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-brightgreen.svg?style=for-the-badge&labelColor=101418&color=9AF47C)
 ![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-blue.svg?style=for-the-badge&labelColor=101418&color=9ccbfb)
-![Agentic AI](https://img.shields.io/badge/AI-Agentic-blueviolet.svg?style=for-the-badge&labelColor=101418&color=8B82ED)
-![Spotify API](https://img.shields.io/badge/Spotify-Integrated-1DB954.svg?style=for-the-badge&labelColor=101418&color=9AF47C)
-![LangGraph](https://img.shields.io/badge/Framework-LangGraph-purple.svg?style=for-the-badge&labelColor=101418&color=EC7BF4)
 
-<h1 align=center>Apply-Buddy</h1>
+
+<h1 align=center>AutoDraft</h1>
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/kingsiddhu/Apply-Buddy?style=for-the-badge&labelColor=101418&color=9ccbfb)
 [![GitHub Repo stars](https://img.shields.io/github/stars/kingsiddhu/Apply-Buddy?style=for-the-badge&labelColor=101418&color=EAF47B)](https://github.com/kingsiddhu/Apply-Buddy/stargazers)
@@ -21,16 +19,20 @@
 
 ## Overview
 
+AutoDraft is an AI-powered document generation pipeline built around LaTeX templates.
+
+Instead of manually editing the same document repeatedly (emails, reports, contracts, forms), AutoDraft extracts information from a webpage (or a custom source), lets an LLM determine what belongs in each placeholder, inserts the content into a LaTeX template, and generates a final PDF draft.
+
+The system also supports traditional placeholder replacement without AI if desired.
+
+AutoDraft can either:
+- Fill placeholders manually
+- Automatically fill templates using an LLM and prior given information
+- Scrape information directly from webpages (large databases, wikipidia, etc.)
+- Compile the finished document into a PDF using a local or remote LaTeX server
+
 WIP
 PS. I have decided to make the code a lot more readable and friendly to work with. Hadn't had the habit of it.
-
-Im jsut gonna copy stuff from AID Core
-AIDCore can:
-
-- Search, read, write, and modify local files
-- Open and view images
-- Control and play music via Spotify
-- Execute custom command that you define.
 
 ## Tech Stack
 
@@ -39,72 +41,48 @@ AIDCore can:
 
   - `langgraph`
   - `langchain-ollama`
-  - `spotipy`
+  - `playwright`
+  - `beautifulsoup4`
+  - `requests`
+  - `langgraph`
 
 ## Features
 
-- Local file system interaction (read, write, navigate)
-- Spotify integration for music control
-- Agent-based execution loop for task handling
-- Extensible architecture for adding tools and capabilities
-- Debug mode for testing and development
+- AI-assisted document generation
+- Manual placeholder replacement
+- RAG-based context retrieval
+- Automatic webpage scraping
+- Configurable website parsers
+- Remote or local LaTeX compilation
+- Markdown-based reusable content system
+- Automatic PDF generation
+- Multiple LaTeX compiler support
+- Fallback between multiple LaTeX servers
 
 ## Installation
 
+## 1. Install Python
 
-### 1. Install Ollama
+Python 3.11+ recommended.
 
-Download and install from:
-[https://ollama.com](https://ollama.com)
-
-Verify installation:
+## 2. Clone the Repository
 
 ```bash
-ollama --version
+git clone https://github.com/kingsiddhu/AutoDraft.git
+
+cd AutoDraft
 ```
 
 ---
 
-### 2. Download Models
+## 3. Create Virtual Environment
 
-
-```bash
-ollama pull llama3
-ollama pull phi3:mini
-ollama pull deepseek-coder:6.7b
-ollama pull qwen3.5:9b
-ollama pull llama3.1:8b
-ollama pull deepseek-r1:14b
-```
-
----
-
-### 3. Start the Model Server
-
-Run Ollama (if not already running):
-
-```bash
-ollama serve
-```
-
----
-
-### 4. Clone the repository:
-
-```bash
-git clone https://github.com/kingsiddhu/AIDCore.git
-cd AIDCore
-```
----
-
-### 5. Create environment
 ```bash
 python -m venv venv
 ```
 
-Activate it:
-
 Linux / macOS
+
 ```bash
 source venv/bin/activate
 ```
@@ -112,154 +90,227 @@ Windows
 ```powershell
 venv\Scripts\activate
 ```
-Install dependencies:
+
+---
+
+## 4. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-
-### 6. Environment Variables
-
-
-AIDCore requires Spotify API credentials with a valid spotify premium subscription to enable music control.\
-Set the following environment variables:
-
-* `SP_CLIENT_ID`
-* `SP_CLIENT_SECRET`
-
 ---
 
-### Linux / macOS (bash / zsh)
+## 5. Install Ollama
 
-Temporary (current session only):
+Download:
 
-```bash
-export SP_CLIENT_ID="your_client_id"
-export SP_CLIENT_SECRET="your_client_secret"
-```
+https://ollama.com
 
-Permanent (add to shell config):
+Verify:
 
 ```bash
-echo 'export SP_CLIENT_ID="your_client_id"' >> ~/.bashrc
-echo 'export SP_CLIENT_SECRET="your_client_secret"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-If using zsh:
-
-```bash
-echo 'export SP_CLIENT_ID="your_client_id"' >> ~/.zshrc
-echo 'export SP_CLIENT_SECRET="your_client_secret"' >> ~/.zshrc
-source ~/.zshrc
+ollama --version
 ```
 
 ---
 
-### Windows (PowerShell)
+## 6. Download Required Model
 
-Temporary:
+Current default:
 
-```powershell
-$env:SP_CLIENT_ID="your_client_id"
-$env:SP_CLIENT_SECRET="your_client_secret"
+```bash
+ollama pull qwen2.5:7b
 ```
 
-Permanent:
+Start Ollama:
 
-```powershell
-setx SP_CLIENT_ID "your_client_id"
-setx SP_CLIENT_SECRET "your_client_secret"
+```bash
+ollama serve
 ```
-
-Restart your terminal after running `setx`.
 
 ---
 
-### Verify Variables
-
-Check if they are set correctly:
+## 7. Install Playwright Browsers
 
 ```bash
-echo $SP_CLIENT_ID
-echo $SP_CLIENT_SECRET
+playwright install
 ```
 
-On Windows (PowerShell):
-
-```powershell
-echo $env:SP_CLIENT_ID
-echo $env:SP_CLIENT_SECRET
-```
-
-## Usage
-
-Run the main agent:
-
-```bash
-python -m runner
-#or 
-python -m runner -p Your prompt here
-```
-> [!TIP]
-> To run the program in debug mode just add the `--debug` flag\
-> Examples:
-> ```bash
-> python -m runner --debug
-> #or 
-> python -m runner --debug -p Your prompt here
-> ```
-
-## Custom Tools System
-> [!NOTE]
-> AIDCore supports user-defined tools to extend the capabilities of the agent.
-> All tools are defined in `Agent/tools.py`
-
-
-### Adding Custom Tools
 ---
 
-To add a new tool, define a function in this file in the section `ADD TOOLS HERE`.
+## 8. Authentication (Optional)
 
-Each tool should:
-- Have a clear and descriptive function name
-- Accept structured inputs using keyword arguments. All parameters should have default values when possible.
-- Return a clean, structured output (string, dict, or JSON-serializable data)
-- Be self-contained and avoid side effects unless necessary
+Some websites require login.
+
+Login once using Playwright and save the browser state as
+
+```
+./auth.json
+```
+
+AutoDraft will automatically reuse this session for scraping authenticated pages.
+
+
+
+
+# Creating Templates
+
+Templates are ordinary `.tex` files.
+
+Placeholders use the following syntax:
+
+```latex
+Dear [[company]],
+
+I am excited to apply for the [[position]] role.
+
+[[body]]
+
+Kind regards,
+
+[[name]]
+```
+
+AutoDraft automatically detects every placeholder.
+
+---
+
+# Markdown Content Library
+
+Each template may have a matching Markdown file from which the AI can derive context from or use the Headings as placeholders to replace with the preset choices.
+
+Example:
+
+```md
+# teamwork
+
+- Collaborated with engineers across departments.
+- Worked in agile development environments.
+
+# backend
+
+- Developed REST APIs using FastAPI.
+- Designed scalable backend systems.
+```
+
+The AI selects the most relevant section and inserts one of its bullet points into the template.
+
+---
+
+# Website Configurations
+
+Website parsers live inside
+
+```
+Settings/
+```
+
+Each website has its own JSON configuration describing where information should be extracted.
+
+Example:
+
+```json
+{
+    "PLACEHOLDER 1":"class-name",
+    "Placeholder 2":"class-name-2",
+    "description":"job-description",
+    "tags": ["section", "Primary content"]
+}
+```
+(tags are used for non class elements given example: html block "section" with aria-label as "Primary content")
+
+This allows different websites to be scraped without modifying the source code.
+
+---
+
+# LaTeX Server
+
+AutoDraft supports multiple compilation servers.
 
 Example:
 
 ```python
-def get_system_uptime():
-    """Returns system uptime."""
-    return os.popen("uptime -p").read()
+candidate_servers = [
+    "http://localhost:8080",
+    "https://my-ngrok-server.ngrok-free.app",
+    "https://latex.ytotech.com"
+]
 ```
-The system will automatically register it with the AI.
 
-Custom tools can be used for:
-- System control
-- File operations
-- Network tasks
-- API integrations
-- Automation scripts
-- Anything that can be executed programmatically
+The first reachable server is automatically selected.
 
-*I mean technically anything ig*
+---
 
-## Notes
+# Usage
 
-- This is an experimental system and is behaving unpredictably depending on prompts and tools. be careful on what you do with it and any damage to your system is not my responsibility.
+Run:
 
-## Future Improvements
+```bash
+python app.py
+```
 
-- Smart Multimodel router
-- Frontend interface for easier interaction
-- More robust tool handling and safety controls
-- Expanded system-level automation capabilities
-- Improved memory and planning for the agent
-- Hopefully computer vision capabilities.
-- Ability to operate real world instruments.
+You will be prompted for a webpage URL.
+
+Example:
+
+```
+Enter Link to scrape:
+```
+
+AutoDraft will
+
+1. Download the webpage
+2. Extract relevant information
+3. Ask the LLM to fill placeholders
+4. Allow manual editing if needed
+5. Compile the LaTeX template
+6. Generate the PDF
+
+The finished document is saved as
+
+```
+testing.pdf
+```
+
+---
+
+# Adding New Templates
+
+Simply add three files to the `Data/` folder.
+
+Example:
+
+```
+Template.tex
+Template.md   (optional)
+Template.json (additional data to send to the Latex Server to compile)
+```
+
+The program automatically discovers available templates.
+
+---
+
+# Notes
+
+- The AI output is intended to accelerate document creation and should be reviewed before submission.
+- Some websites may require authentication.
+- LaTeX compilation depends on the availability of a working server.
+- This project is still under active development.
+
+---
+
+# Future Improvements
+
+- GUI/Desktop application
+- Web interface
+- Multiple template selection
+- Better RAG pipeline
+- Multi-document generation
+- Streaming PDF previews
+- Batch document generation
+- Support for DOCX export
+
 
 ## Authors:
 
@@ -268,10 +319,10 @@ Custom tools can be used for:
 ## Star History
 
 
-<a href="https://www.star-history.com/?repos=kingsiddhu%2FAIDCore&type=timeline&legend=top-left">
+<a href="https://www.star-history.com/?repos=kingsiddhu%2FAutoDraft&type=timeline&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=kingsiddhu/AIDCore&type=timeline&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=kingsiddhu/AIDCore&type=timeline&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=kingsiddhu/AIDCore&type=timeline&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=kingsiddhu/AutoDraft&type=timeline&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=kingsiddhu/AutoDraft&type=timeline&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=kingsiddhu/AutoDraft&type=timeline&legend=top-left" />
  </picture>
 </a>
